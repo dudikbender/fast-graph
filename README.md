@@ -4,14 +4,19 @@
 
 ### **Table of Contents**
 - [**Getting Started**](#Getting-Started)
-<br>
-Here is a brief introduction to what FastGraph is for.
+
 - [**Authorisation & Security**](#Authorisation-and-Security)
+
 - [**User Management**](#User-Management)
+
 - [**Graph Objects**](#Graph-Objects)
+
     - [Nodes](#Nodes)
+
     - [Relationships](#Relationships)
+
 - [**Contact**](#Contact)
+
 
 <br>
 
