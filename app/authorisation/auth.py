@@ -12,7 +12,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-# Internal Pydandic schemas
+# Import utilities functions and schemas
+from utils.db import neo4j_driver
 from utils.schema import Token, TokenData, User, UserInDB
 
 # Packages and functions for loading environment variables
@@ -25,12 +26,6 @@ SECRET_KEY = os.environ.get('ENCRYPTION_SECRET_KEY')
 ALGORITHM = os.environ.get('ENCRYPTION_ALGORITHM')
 ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES')
 ACCESS_TOKEN_EXPIRE_MINUTES = int(ACCESS_TOKEN_EXPIRE_MINUTES)
-
-# Neo4j driver execution
-uri = os.environ.get('DB_URI')
-username = os.environ.get('DB_USERNAME')
-password = os.environ.get('DB_PASSWORD')
-neo4j_driver = GraphDatabase.driver(uri, auth=(username, password))
 
 # Set the API Router
 router = APIRouter()
@@ -45,7 +40,7 @@ def create_password_hash(password):
 def verify_password(plain_password, password_hash):
     return pwd_context.verify(plain_password, password_hash)
 
-# Search the database for user with specified email
+# Search the database for user with specified username
 def get_user(username: str):
     query = f'MATCH (a) WHERE a.username = \'{username}\' RETURN a'
 

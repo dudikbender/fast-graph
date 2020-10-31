@@ -1,4 +1,4 @@
-# **FastGraph** - A ready-made FastAPI application integrated with Neo4j's graph database
+# **Fast-graph** - A ready-made FastAPI integration made for Neo4j's graph database
 <br>
 <br>
 

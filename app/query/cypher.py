@@ -1,5 +1,5 @@
 # Import required base modules
-from neo4j import GraphDatabase
+#from neo4j import GraphDatabase
 from datetime import datetime
 import os
 from dotenv import load_dotenv, find_dotenv
@@ -8,18 +8,13 @@ from typing import Optional
 # Import modules from FastAPI
 from fastapi import APIRouter, Depends, HTTPException, status
 
-# Internal modules to manage authorisations
+# Import internal utilities for database access and schemas
+from utils.db import neo4j_driver
 from utils.schema import Query
 
 # Load environment variables
 env_loc = find_dotenv('.env')
 load_dotenv(env_loc)
-
-# Neo4j driver execution
-uri = os.environ.get('DB_URI')
-username = os.environ.get('DB_USERNAME')
-password = os.environ.get('DB_PASSWORD')
-neo4j_driver = GraphDatabase.driver(uri, auth=(username, password))
 
 # Set the API Router
 router = APIRouter()
