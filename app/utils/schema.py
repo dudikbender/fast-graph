@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -23,12 +23,17 @@ class UserInDB(User):
 
 # Node response models
 class Node(BaseModel):
+    node_id: int
     labels: list
     properties: Optional[dict] = None
+
+class Nodes(BaseModel):
+    nodes: List[Node]
 
 
 # Relationship response models
 class Relationship(BaseModel):
+    relationship_id: int
     relationship_type: str
     source_node: Node
     target_node: Node
