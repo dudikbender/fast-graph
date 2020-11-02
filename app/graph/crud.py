@@ -321,13 +321,13 @@ async def update_relationship(relationship_id: int, attributes: dict):
 @router.post('/delete/{relationship_id}')
 async def delete_relationship(relationship_id: int):
 
-    cypher = '''MATCH (a)-[rel]->(b)
-                WHERE ID(rel) = $rel_id
-                DELETE rel'''
+    cypher = '''MATCH (a)-[relationship]->(b)
+                WHERE ID(relationship) = $relationship_id
+                DELETE relationship'''
     
     with neo4j_driver.session() as session:
         result = session.run(query=cypher,
-                             parameters={'rel_id':relationship_id})
+                             parameters={'relationship_id':relationship_id})
 
         relationship_data = result.data()
 

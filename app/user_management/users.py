@@ -33,11 +33,11 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 # GET Specified user's information by username
 @router.get('/{username}', response_model=User)
 async def read_user(username: str):
-    query = 'MATCH (a) WHERE a.username = $username RETURN a'
+    query = 'MATCH (user) WHERE user.username = $username RETURN user'
 
     with neo4j_driver.session() as session:
         user_in_db = session.run(query=query, parameters={'username':username})
-        user_data = user_in_db.data()[0]['a']
+        user_data = user_in_db.data()[0]['user']
         return User(**user_data)
 
 # CREATE User
@@ -54,8 +54,8 @@ async def create_user(username: str, password: str,
                   'disabled':disabled}
 
     # Write Cypher query and run against the database
-    cypher_search = 'MATCH (a:User) WHERE a.username = $username RETURN a'
-    cypher_create = 'CREATE (a:User {params}) RETURN a'
+    cypher_search = 'MATCH (user:User) WHERE user.username = $username RETURN user'
+    cypher_create = 'CREATE (user:User {params}) RETURN user'
 
     with neo4j_driver.session() as session:
         # First, run a search of users to determine if username is already in use
@@ -69,9 +69,9 @@ async def create_user(username: str, password: str,
             headers={"WWW-Authenticate": "Bearer"})
 
         response = session.run(query=cypher_create, parameters={'params':attributes})
-        user_data = response.data()[0]['a']
-        user = User(**user_data)
-        return user
+        user_data = response.data()[0]['user']
+    user = User(**user_data)
+    return user
 
 # UPDATE User profile
 @router.put('/{username}/update', response_model=User)
@@ -85,16 +85,17 @@ async def update_user(attributes: dict, username: str):
             headers={"WWW-Authenticate": "Bearer"})
     
     # Execute Cypher query to reset the hashed_password attribute
-    cypher_update_user = ('MATCH (a: User) WHERE a.username = $user\n'
-                          'SET a += {dict_params}\n'
-                          'RETURN a')
+    cypher_update_user = ('MATCH (user: User) WHERE user.username = $user\n'
+                          'SET user += {dict_params}\n'
+                          'RETURN user')
 
     with neo4j_driver.session() as session:
         updated_user = session.run(query=cypher_update_user,
                                    parameters={'user':username, 'dict_params':attributes})
-        user_data = updated_user.data()[0]['a']
-        user = User(**user_data)
-        return user
+        user_data = updated_user.data()[0]['user']
+    
+    user = User(**user_data)
+    return user
 
 # RESET User password
 @router.put('/me/reset_password', response_model=User)
@@ -104,14 +105,14 @@ async def reset_password(new_password: str, current_user: User = Depends(get_cur
     new_password_hash = create_password_hash(new_password)
 
     # Execute Cypher query to reset the hashed_password attribute
-    cypher_reset_password = ('MATCH (a) WHERE a.username = $username\n'
-                             'SET a.hashed_password = $new_password_hash\n'
-                             'RETURN a')
+    cypher_reset_password = ('MATCH (user) WHERE user.username = $username\n'
+                             'SET user.hashed_password = $new_password_hash\n'
+                             'RETURN user')
     
     with neo4j_driver.session() as session:
         updated_user = session.run(query=cypher_reset_password, 
                                    parameters={'username':username,
                                                'new_password_hash':new_password_hash})
-        user_data = updated_user.data()[0]['a']
-        user = User(**user_data)
-        return user
+        user_data = updated_user.data()[0]['user']
+    user = User(**user_data)
+    return user
