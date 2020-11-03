@@ -66,15 +66,10 @@ async def create_node(label:str, node_attributes: dict, permission: Optional[str
                              'attributes':node_attributes})
 
         node_data = result.data()[0]
-
-    node_id = node_data['id']
-    properties = node_data['new_node']
-    labels = node_data['labels']
     
-    node = Node(node_id=node_id,
-                labels=labels,
-                properties=properties)
-    return node
+    return Node(node_id=node_data['id'],
+                labels=node_data['labels'],
+                properties=node_data['new_node'])
 
 # READ data about a node in the graph by ID
 @router.get('/read/{node_id}', response_model=Node)
@@ -97,22 +92,17 @@ async def read_node_id(node_id: int, current_user: User = Depends(get_current_ac
 
         node_data = result.data()[0]
 
-    # Summarise data
-    node_id = node_data['id']
-    properties = node_data['node']
-    labels = node_data['labels']
-
     # Check node for type User, and send error message if needed
-    if 'User' in labels:
+    if 'User' in node_data['labels']:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Operation not permitted, please use User endpoints to retrieve user information.",
             headers={"WWW-Authenticate": "Bearer"})
 
     # Return Node response
-    return Node(node_id=node_id,
-                labels=labels,
-                properties=properties)
+    return Node(node_id=node_data['id'],
+                labels=node_data['labels'],
+                properties=node_data['node'])
 
 # READ data about a collection of nodes in the graph
 @router.get('/read_node_collection', response_model=Nodes)
