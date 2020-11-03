@@ -29,7 +29,7 @@ November 2020
 First, download or clone this repository to use on your local machine. Then, 
 >pip install -r requirements.txt
 
-to install the required packages. Lastly, you'll want to make sure to create a '.env' file with the necessary credentials and settings (you can find what these are in the app/utils directory - you can set these directly but I think it's best to separate out into a hidden config file - like '.env'). When you have the required Neo4j credentials set in the **app/utils/db.py** file than you can start the server with
+to install the required packages. Lastly, you'll want to make sure to create a '.env' file with the necessary credentials and settings (you can find what these are in the app/utils directory - you can set these directly but I think it's best to separate out into a hidden config file - like '.env'). When you have the required Neo4j credentials set in the **app/utils/db.py** file, and you've started the local Neo4j database that you will be using, than you can start the server with
 
 > uvicorn main:app --reload
 
