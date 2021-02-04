@@ -38,7 +38,10 @@ async def read_user(username: str):
     with neo4j_driver.session() as session:
         user_in_db = session.run(query=query, parameters={'username':username})
         user_data = user_in_db.data()[0]['user']
-        return User(**user_data)
+    
+    user_id = user_data['id']
+
+    return User(**user_data)
 
 # CREATE User
 @router.post("/create", response_model=User)

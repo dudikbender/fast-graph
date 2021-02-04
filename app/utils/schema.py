@@ -10,6 +10,17 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
 
+# Node response models
+class NodeBase(BaseModel):
+    node_id: int
+    labels: list
+
+class Node(NodeBase):
+    properties: Optional[dict] = None
+
+class Nodes(BaseModel):
+    nodes: List[Node]
+
 # User response models
 class User(BaseModel):
     username: str
@@ -19,16 +30,6 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
-
-
-# Node response models
-class Node(BaseModel):
-    node_id: int
-    labels: list
-    properties: Optional[dict] = None
-
-class Nodes(BaseModel):
-    nodes: List[Node]
 
 
 # Relationship response models
