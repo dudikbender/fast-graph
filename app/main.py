@@ -2,11 +2,11 @@
 from fastapi import FastAPI, Depends
 
 # Internal packages
-from authorisation import auth
-from authorisation.auth import get_current_active_user
-from user_management import users
-from graph import crud
-from query import cypher
+from app.authorisation import auth
+from app.authorisation.auth import get_current_active_user
+from app.user_management import users
+from app.graph import crud
+from app.query import cypher
 
 app = FastAPI(title='Fast-graph',
               description='API built for Neo4j with FastAPI',

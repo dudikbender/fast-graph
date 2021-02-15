@@ -9,8 +9,8 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 
 # Import internal utilities for database access and schemas
-from utils.db import neo4j_driver
-from utils.schema import Query
+from app.utils.db import neo4j_driver
+from app.utils.schema import Query
 
 # Load environment variables
 env_loc = find_dotenv('.env')

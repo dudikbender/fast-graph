@@ -9,9 +9,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 
 # Import internal utilities for database access, authorisation, and schemas
-from utils.db import neo4j_driver
-from authorisation.auth import get_current_active_user
-from utils.schema import User, Node, Nodes, Relationship
+from app.utils.db import neo4j_driver
+from app.authorisation.auth import get_current_active_user
+from app.utils.schema import User, Node, Nodes, Relationship
 
 # Load environment variables
 load_dotenv('.env')

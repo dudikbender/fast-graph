@@ -13,8 +13,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 # Import utilities functions and schemas
-from utils.db import neo4j_driver
-from utils.schema import Token, TokenData, User, UserInDB
+from app.utils.db import neo4j_driver
+from app.utils.schema import Token, TokenData, User, UserInDB
 
 # Packages and functions for loading environment variables
 import os
