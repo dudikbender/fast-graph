@@ -16,12 +16,6 @@ from app.utils.schema import User
 # Load environment variables
 load_dotenv('.env')
 
-# Neo4j driver execution
-'''uri = os.environ.get('DB_URI')
-username = os.environ.get('DB_USERNAME')
-password = os.environ.get('DB_PASSWORD')
-neo4j_driver = GraphDatabase.driver(uri, auth=(username, password))'''
-
 # Set the API Router
 router = APIRouter()
 
@@ -33,7 +27,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 # GET Specified user's information by username
 @router.get('/{username}', response_model=User)
 async def read_user(username: str):
-    query = 'MATCH (user) WHERE user.username = $username RETURN user'
+    query = 'MATCH (user:User) WHERE user.username = $username RETURN user'
 
     with neo4j_driver.session() as session:
         user_in_db = session.run(query=query, parameters={'username':username})
@@ -58,7 +52,7 @@ async def create_user(username: str, password: str,
 
     # Write Cypher query and run against the database
     cypher_search = 'MATCH (user:User) WHERE user.username = $username RETURN user'
-    cypher_create = 'CREATE (user:User {params}) RETURN user'
+    cypher_create = 'CREATE (user:User $params) RETURN user'
 
     with neo4j_driver.session() as session:
         # First, run a search of users to determine if username is already in use
@@ -89,7 +83,7 @@ async def update_user(attributes: dict, username: str):
     
     # Execute Cypher query to reset the hashed_password attribute
     cypher_update_user = ('MATCH (user: User) WHERE user.username = $user\n'
-                          'SET user += {dict_params}\n'
+                          'SET user += $dict_params\n'
                           'RETURN user')
 
     with neo4j_driver.session() as session:
@@ -108,7 +102,7 @@ async def reset_password(new_password: str, current_user: User = Depends(get_cur
     new_password_hash = create_password_hash(new_password)
 
     # Execute Cypher query to reset the hashed_password attribute
-    cypher_reset_password = ('MATCH (user) WHERE user.username = $username\n'
+    cypher_reset_password = ('MATCH (user:User) WHERE user.username = $username\n'
                              'SET user.hashed_password = $new_password_hash\n'
                              'RETURN user')
     

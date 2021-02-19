@@ -21,7 +21,7 @@ router = APIRouter()
 
 # List of acceptable node labels and relationship types
 # Modify these to add constraints
-node_labels = ['Address','Geography','Person','Company']
+node_labels = ['Address','Geography','Person','Company','Table','Field']
 relationship_types = ['LIVES_IN','USED_TO_LIVE_IN','WORKS_FOR','LOCATED_IN','KNOWS']
 base_properties = ['created_by','created_time']
 
@@ -51,11 +51,13 @@ async def create_node(label:str, node_attributes: dict, permission: Optional[str
                                 detail=f"Operation not permitted, you cannot modify those fields with this method.",
                                 headers={"WWW-Authenticate": "Bearer"})
     
+    unpacked_attributes = 'SET ' + ', '.join(f'new_node.{key}=\'{value}\'' for (key, value) in node_attributes.items())
+
     cypher = (f'CREATE (new_node:{label})\n'
                'SET new_node.created_by = $created_by\n'
                'SET new_node.created_time = $created_time\n'
                'SET new_node.permission = $permission\n'
-               'SET new_node += {attributes}\n'
+               f'{unpacked_attributes}\n'
                'RETURN new_node, LABELS(new_node) as labels, ID(new_node) as id')
 
     with neo4j_driver.session() as session:

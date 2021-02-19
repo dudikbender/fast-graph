@@ -22,8 +22,8 @@ from dotenv import load_dotenv
 load_dotenv('.env')
 
 # Settings for encryption
-SECRET_KEY = os.environ.get('ENCRYPTION_SECRET_KEY')
-ALGORITHM = os.environ.get('ENCRYPTION_ALGORITHM')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+ALGORITHM = os.environ.get('ALGORITHM')
 ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES')
 ACCESS_TOKEN_EXPIRE_MINUTES = int(ACCESS_TOKEN_EXPIRE_MINUTES)
 
@@ -42,7 +42,7 @@ def verify_password(plain_password, password_hash):
 
 # Search the database for user with specified username
 def get_user(username: str):
-    query = f'MATCH (a) WHERE a.username = \'{username}\' RETURN a'
+    query = f'MATCH (a:User) WHERE a.username = \'{username}\' RETURN a'
 
     with neo4j_driver.session() as session:
         user_in_db = session.run(query)
