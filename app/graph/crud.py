@@ -210,8 +210,11 @@ async def create_relationship(source_node_label: str, source_node_property: str,
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                 detail=f"Operation not permitted, you cannot modify those fields with this method.",
                                 headers={"WWW-Authenticate": "Bearer"})
-
-    unpacked_attributes = 'SET ' + ', '.join(f'relationship.{key}=\'{value}\'' for (key, value) in relationship_attributes.items())
+    
+    if relationship_attributes:
+        unpacked_attributes = 'SET ' + ', '.join(f'relationship.{key}=\'{value}\'' for (key, value) in relationship_attributes.items())
+    else:
+        unpacked_attributes = ''
     
     cypher = (f'MATCH (nodeA:{source_node_label}) WHERE nodeA.{source_node_property} = $nodeA_property\n'
             f'MATCH (nodeB:{target_node_label}) WHERE nodeB.{target_node_property} = $nodeB_property\n'
