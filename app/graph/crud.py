@@ -194,7 +194,7 @@ async def delete_node(node_id: int):
 @router.post('/create_relationship', response_model=Relationship)
 async def create_relationship(source_node_label: str, source_node_property: str, source_node_property_value: str,
                               target_node_label: str, target_node_property: str, target_node_property_value: str,
-                              relationship_type: str, relationship_attributes: dict,
+                              relationship_type: str, relationship_attributes: Optional[dict] = None,
                               permission: Optional[str] = None,
                               current_user: User = Depends(get_current_active_user)):
     # Check that relationship has an acceptable type
@@ -210,6 +210,8 @@ async def create_relationship(source_node_label: str, source_node_property: str,
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                 detail=f"Operation not permitted, you cannot modify those fields with this method.",
                                 headers={"WWW-Authenticate": "Bearer"})
+
+    unpacked_attributes = 'SET ' + ', '.join(f'new_node.{key}=\'{value}\'' for (key, value) in relationship_attributes.items())
     
     cypher = (f'MATCH (nodeA:{source_node_label}) WHERE nodeA.{source_node_property} = $nodeA_property\n'
             f'MATCH (nodeB:{target_node_label}) WHERE nodeB.{target_node_property} = $nodeB_property\n'
@@ -217,7 +219,7 @@ async def create_relationship(source_node_label: str, source_node_property: str,
             'SET relationship.created_by = $created_by\n'
             'SET relationship.created_time = $created_time\n'
             'SET relationship.permission = $permission\n'
-            'SET relationship += {relationship_attributes}\n'
+            f'{unpacked_attributes}\n'
             'RETURN nodeA, nodeB, LABELS(nodeA), LABELS(nodeB), ID(nodeA), ID(nodeB), ID(relationship), TYPE(relationship), PROPERTIES(relationship)')
 
     with neo4j_driver.session() as session:
@@ -226,8 +228,7 @@ async def create_relationship(source_node_label: str, source_node_property: str,
                                          'created_time':str(datetime.utcnow()),
                                          'permission':permission,
                                          'nodeA_property':source_node_property_value,
-                                         'nodeB_property':target_node_property_value,
-                                         'relationship_attributes':relationship_attributes})
+                                         'nodeB_property':target_node_property_value})
 
         relationship_data = result.data()[0]
 

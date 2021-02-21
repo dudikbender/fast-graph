@@ -4,4 +4,5 @@ WORKDIR $APP_HOME
 COPY . ./
 RUN pip install pipenv
 RUN pipenv install --deploy --system
-CMD uvicorn app.main:app --reload --server.port $PORT
+
+CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
