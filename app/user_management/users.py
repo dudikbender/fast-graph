@@ -81,14 +81,16 @@ async def update_user(attributes: dict, username: str):
             detail="Operation not permitted, cannot update password with this method.",
             headers={"WWW-Authenticate": "Bearer"})
     
+    unpacked_attributes = 'SET ' + ', '.join(f'new_node.{key}=\'{value}\'' for (key, value) in attributes.items())
+    
     # Execute Cypher query to reset the hashed_password attribute
     cypher_update_user = ('MATCH (user: User) WHERE user.username = $user\n'
-                          'SET user += $dict_params\n'
+                          f'{unpacked_attributes}\n'
                           'RETURN user')
 
     with neo4j_driver.session() as session:
         updated_user = session.run(query=cypher_update_user,
-                                   parameters={'user':username, 'dict_params':attributes})
+                                   parameters={'user':username})
         user_data = updated_user.data()[0]['user']
     
     user = User(**user_data)
