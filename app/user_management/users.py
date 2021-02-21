@@ -81,7 +81,7 @@ async def update_user(attributes: dict, username: str):
             detail="Operation not permitted, cannot update password with this method.",
             headers={"WWW-Authenticate": "Bearer"})
     
-    unpacked_attributes = 'SET ' + ', '.join(f'new_node.{key}=\'{value}\'' for (key, value) in attributes.items())
+    unpacked_attributes = 'SET ' + ', '.join(f'user.{key}=\'{value}\'' for (key, value) in attributes.items())
     
     # Execute Cypher query to reset the hashed_password attribute
     cypher_update_user = ('MATCH (user: User) WHERE user.username = $user\n'
