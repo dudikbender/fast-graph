@@ -81,8 +81,8 @@ async def update_user(attributes: dict, username: str):
             detail="Operation not permitted, cannot update password with this method.",
             headers={"WWW-Authenticate": "Bearer"})
     
-    if relationship_attributes:
-        unpacked_attributes = 'SET ' + ', '.join(f'user.{key}=\'{value}\'' for (key, value) in relationship_attributes.items())
+    if attributes:
+        unpacked_attributes = 'SET ' + ', '.join(f'user.{key}=\'{value}\'' for (key, value) in attributes.items())
     else:
         unpacked_attributes = ''
 

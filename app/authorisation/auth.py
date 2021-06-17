@@ -3,6 +3,7 @@ from neo4j import GraphDatabase
 import json
 from datetime import datetime, timedelta
 from typing import Optional
+import time
 
 # FastAPI modules for authorisation
 from fastapi import Depends, APIRouter, HTTPException, status
@@ -20,6 +21,9 @@ from app.utils.schema import Token, TokenData, User, UserInDB
 import os
 from dotenv import load_dotenv
 load_dotenv('.env')
+
+# Application password for superadmin functions
+app_password = os.environ.get('APP_PASSWORD')
 
 # Settings for encryption
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -117,3 +121,47 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+# Endpoint for creating first user, at launch with appliaction password rather than user credentials
+@router.post('/launch_user')
+async def first_user(username: str, 
+                     password: str, 
+                     application_password: str,
+                     full_name: Optional[str] = None):
+
+    # Check application password is correct
+    if not application_password == app_password:
+        denial = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect application password, please try again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        time.sleep(1)
+        return denial
+
+    # Create dictionary of new user attributes
+    attributes = {'username':username,
+                  'full_name':full_name,
+                  'hashed_password':create_password_hash(password),
+                  'joined':str(datetime.utcnow()),
+                  'disabled':False}
+
+    # Write Cypher query and run against the database
+    cypher_search = 'MATCH (user:User) WHERE user.username = $username RETURN user'
+    cypher_create = 'CREATE (user:User $params) RETURN user'
+
+    with neo4j_driver.session() as session:
+        # First, run a search of users to determine if username is already in use
+        check_users = session.run(query=cypher_search, parameters={'username':username})
+        
+        # Return error message if username is already in the database
+        if check_users.data():
+            raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Operation not permitted, user with username {username} already exists.",
+            headers={"WWW-Authenticate": "Bearer"})
+
+        response = session.run(query=cypher_create, parameters={'params':attributes})
+        user_data = response.data()[0]['user']
+    user = User(**user_data)
+    return user

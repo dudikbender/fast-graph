@@ -10,7 +10,9 @@ from app.query import cypher
 
 app = FastAPI(title='Fast-graph',
               description='API built for Neo4j with FastAPI',
-              version=0.1)
+              version=0.1,
+              docs_url='/docs',
+              redoc_url='/redoc')
 
 app.include_router(
     auth.router,
