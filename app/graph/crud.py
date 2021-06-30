@@ -21,14 +21,14 @@ router = APIRouter()
 
 # List of acceptable node labels and relationship types
 # Modify these to add constraints
-node_labels = ['Address','Geography','Person','Company','Table','Field']
-relationship_types = ['LIVES_IN','USED_TO_LIVE_IN','WORKS_FOR','LOCATED_IN','KNOWS']
+node_labels = ['Address','Geography','Person','Company','Event']
+relationship_types = ['LIVES_IN','USED_TO_LIVE_IN','WORKS_FOR','LOCATED_IN','KNOWS','ATTENDED']
 base_properties = ['created_by','created_time']
 
 ### NODES
 # CREATE new node
 @router.post('/create_node', response_model=Node)
-async def create_node(label:str, node_attributes: dict, permission: Optional[str] = None, 
+async def create_node(label:str, node_attributes: dict, 
                       current_user: User = Depends(get_current_active_user)):
     # Check that node is not User
     if label == 'User':
@@ -56,7 +56,6 @@ async def create_node(label:str, node_attributes: dict, permission: Optional[str
     cypher = (f'CREATE (new_node:{label})\n'
                'SET new_node.created_by = $created_by\n'
                'SET new_node.created_time = $created_time\n'
-               'SET new_node.permission = $permission\n'
                f'{unpacked_attributes}\n'
                'RETURN new_node, LABELS(new_node) as labels, ID(new_node) as id')
 
@@ -174,7 +173,7 @@ async def delete_node(node_id: int):
 
     cypher = '''MATCH (node)
                 WHERE ID(node) = $node_id
-                DELETE node'''
+                DETACH DELETE node'''
     
     with neo4j_driver.session() as session:
         result = session.run(query=cypher,
@@ -195,7 +194,6 @@ async def delete_node(node_id: int):
 async def create_relationship(source_node_label: str, source_node_property: str, source_node_property_value: str,
                               target_node_label: str, target_node_property: str, target_node_property_value: str,
                               relationship_type: str, relationship_attributes: Optional[dict] = None,
-                              permission: Optional[str] = None,
                               current_user: User = Depends(get_current_active_user)):
     # Check that relationship has an acceptable type
     if relationship_type not in relationship_types:
@@ -221,7 +219,6 @@ async def create_relationship(source_node_label: str, source_node_property: str,
             f'CREATE (nodeA)-[relationship:{relationship_type}]->(nodeB)\n'
             'SET relationship.created_by = $created_by\n'
             'SET relationship.created_time = $created_time\n'
-            'SET relationship.permission = $permission\n'
             f'{unpacked_attributes}\n'
             'RETURN nodeA, nodeB, LABELS(nodeA), LABELS(nodeB), ID(nodeA), ID(nodeB), ID(relationship), TYPE(relationship), PROPERTIES(relationship)')
 
