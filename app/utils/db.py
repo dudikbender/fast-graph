@@ -4,11 +4,10 @@ from neo4j import GraphDatabase
 # Packages and functions for loading environment variables
 import os
 from dotenv import load_dotenv, find_dotenv
-env_loc = find_dotenv('.env')
-load_dotenv(env_loc)
+load_dotenv(find_dotenv('.env'))
 
 # Neo4j driver execution
 uri = os.environ.get('NEO4J_URI')
-username = os.environ.get('NEO4J_USERNAME')
+username = os.environ.get('NEO4J_USERNAME', 'neo4j')
 password = os.environ.get('NEO4J_PASSWORD')
 neo4j_driver = GraphDatabase.driver(uri, auth=(username, password))
