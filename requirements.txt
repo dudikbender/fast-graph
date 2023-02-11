@@ -19,13 +19,13 @@ lazy-object-proxy==1.4.3
 mccabe==0.6.1
 Naked==0.1.31
 neo4j==4.2.1
-numpy==1.19.3
+numpy
 passlib==1.7.4
 pyasn1==0.4.8
 pycparser==2.20
 pycrypto==2.6.1
-pycryptodome==3.4.3
-pycryptodomex==3.9.9
+pycryptodome
+pycryptodomex
 pydantic==1.7.3
 pylint==2.6.0
 python-dotenv==0.15.0
