@@ -1,6 +1,4 @@
 # General packages and modules
-# from neo4j import GraphDatabase
-# import json
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import time
@@ -13,22 +11,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-# Import utilities functions and schemas
+
+# Import utilities functions, configuration and schemas
+from app.utils.environment import Config
 from app.utils.db import neo4j_driver
 from app.utils.schema import Token, TokenData, User, UserInDB
 
-# Packages and functions for loading environment variables
-import os
-from dotenv import load_dotenv
-load_dotenv('.env')
-
-# Application password for superadmin functions
-app_password = os.environ.get('APP_PASSWORD')
-
-# Settings for encryption
-SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
-ALGORITHM = os.environ.get('ALGORITHM', "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', 10_080))  # one week
 
 # Set the API Router
 router = APIRouter()
@@ -78,7 +66,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode["exp"] = expire
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
 
 
 # Decrypt the token and retrieve the username from payload
@@ -89,7 +77,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -119,7 +107,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
@@ -128,13 +116,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 # Endpoint for creating first user, at launch with appliaction password rather than user credentials
 @router.post('/launch_user')
-async def first_user(username: str, 
-                     password: str, 
+async def first_user(username: str,
+                     password: str,
                      application_password: str,
                      full_name: Optional[str] = None):
 
     # Check application password is correct
-    if application_password != app_password:
+    if application_password != Config.APP_PASSWORD:
         denial = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect application password, please try again.",
