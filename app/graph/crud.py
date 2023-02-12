@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from dotenv import load_dotenv
 from typing import Optional
 
 # Import modules from FastAPI
@@ -9,9 +8,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.db import neo4j_driver
 from app.authorisation.auth import get_current_active_user
 from app.utils.schema import User, Node, Nodes, Relationship
-
-# Load environment variables
-load_dotenv('.env')
 
 # Set the API Router
 router = APIRouter()

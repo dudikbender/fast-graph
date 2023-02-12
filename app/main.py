@@ -8,6 +8,7 @@ from app.user_management import users
 from app.graph import crud
 from app.query import cypher
 
+
 app = FastAPI(title='Fast-graph',
               description='API built for Neo4j with FastAPI',
               version=0.1,

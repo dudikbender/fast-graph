@@ -1,0 +1,5 @@
+Feb 12, 2023
+- Started CHANGELOG document
+- Changed misc environment and load_dotenv stuff to centralized configuration class in app.utils.environment called Config, auth and db.py refactored to use them
+- Deleted 2 files stated for testing. can be re-added when that code is implemented
+- Adjusted .gitignore to exclude some more stuff
